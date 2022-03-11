@@ -670,7 +670,6 @@ html {
   height: 100%;
 }
 html {
-  font-family: sans-serif;
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
@@ -684,14 +683,6 @@ html {
 }
 body {
   margin: 0;
-  color: rgba(0, 0, 0, 0.85);
-  font-size: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-  font-variant: tabular-nums;
-  line-height: 1.5715;
-  background-color: #fff;
-  font-feature-settings: "tnum";
 }
 [tabindex="-1"]:focus {
   outline: 0 !important;
@@ -2472,16 +2463,16 @@ mark {
 }
 .ant-btn-primary {
   color: #fff;
-  background: #1890ff;
-  border-color: #1890ff;
+  background: #9b5de5;
+  border-color: rgb(117, 33, 219);
   text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.12);
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
 }
 .ant-btn-primary:focus,
 .ant-btn-primary:hover {
   color: #fff;
-  background: #40a9ff;
-  border-color: #40a9ff;
+  background: rgb(117, 33, 219);
+  border-color: rgb(117, 33, 219);
 }
 .ant-btn-primary:active {
   color: #fff;
@@ -16084,7 +16075,6 @@ table tr th.ant-table-selection-column .ant-radio-wrapper {
 }
 .ant-page-header-heading-title {
   margin-bottom: 0;
-  color: rgba(0, 0, 0, 0.85);
   font-weight: 600;
   font-size: 20px;
   line-height: 32px;
@@ -22788,7 +22778,7 @@ a.ant-typography:active {
   overflow-wrap: break-word;
 }
 .ant-typography.ant-typography-secondary {
-  color: rgba(0, 0, 0, 0.45);
+  color: #fee440;
 }
 .ant-typography.ant-typography-success {
   color: #52c41a;
@@ -22908,7 +22898,7 @@ span.ant-typography-ellipsis {
 .ant-typography-edit,
 .ant-typography-expand,
 a.ant-typography {
-  color: #1890ff;
+  color: #fff;
   outline: 0;
   cursor: pointer;
   transition: color 0.3s;
@@ -22971,7 +22961,7 @@ a.ant-typography[disabled] {
 .ant-typography-edit:hover,
 .ant-typography-expand:focus,
 .ant-typography-expand:hover {
-  color: #40a9ff;
+  color: #fee440;
 }
 .ant-typography-copy:active,
 .ant-typography-edit:active,

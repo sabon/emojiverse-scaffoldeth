@@ -1,4 +1,5 @@
 import { Button } from "antd";
+import { WalletOutlined } from "@ant-design/icons";
 import React from "react";
 import { useThemeSwitcher } from "react-css-theme-switcher";
 
@@ -63,9 +64,11 @@ export default function Account({
     if (web3Modal.cachedProvider) {
       modalButtons.push(
         <Button
+          type="secondary"
           key="logoutbutton"
           style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
           shape="round"
+          icon={<WalletOutlined />}
           size="large"
           onClick={logoutOfWeb3Modal}
         >
@@ -75,9 +78,11 @@ export default function Account({
     } else {
       modalButtons.push(
         <Button
+          type="primary"
           key="loginbutton"
-          style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4 }}
+          style={{ verticalAlign: "top", marginLeft: 8, marginTop: 4, backgroundColor: "#FEE440", color: "#222" }}
           shape="round"
+          icon={<WalletOutlined />}
           size="large"
           /* type={minimized ? "default" : "primary"}     too many people just defaulting to MM and having a bad time */
           onClick={loadWeb3Modal}
@@ -92,40 +97,17 @@ export default function Account({
   ) : (
     <span>
       {web3Modal && web3Modal.cachedProvider ? (
-        <>
-          {address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />}
-          <Balance address={address} provider={localProvider} price={price} />
-          <Wallet
-            address={address}
-            provider={localProvider}
-            signer={userSigner}
-            ensProvider={mainnetProvider}
-            price={price}
-            color={currentTheme === "light" ? "#1890ff" : "#2caad9"}
-          />
-        </>
+        <>{address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />}</>
       ) : useBurner ? (
         ""
       ) : isContract ? (
-        <>
-          {address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />}
-          <Balance address={address} provider={localProvider} price={price} />
-        </>
+        <>{address && <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />}</>
       ) : (
         ""
       )}
       {useBurner && web3Modal && !web3Modal.cachedProvider ? (
         <>
           <Address address={address} ensProvider={mainnetProvider} blockExplorer={blockExplorer} />
-          <Balance address={address} provider={localProvider} price={price} />
-          <Wallet
-            address={address}
-            provider={localProvider}
-            signer={userSigner}
-            ensProvider={mainnetProvider}
-            price={price}
-            color={currentTheme === "light" ? "#1890ff" : "#2caad9"}
-          />
         </>
       ) : (
         <></>
