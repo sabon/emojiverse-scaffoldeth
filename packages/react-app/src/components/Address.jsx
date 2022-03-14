@@ -1,7 +1,6 @@
 import { Skeleton, Typography } from "antd";
 import React from "react";
 import { useThemeSwitcher } from "react-css-theme-switcher";
-import Blockies from "react-blockies";
 import { useLookupAddress } from "eth-hooks/dapps/ens";
 
 // changed value={address} to address={address}
@@ -34,7 +33,6 @@ const { Text } = Typography;
 const blockExplorerLink = (address, blockExplorer) => `${blockExplorer || "https://etherscan.io/"}address/${address}`;
 
 export default function Address(props) {
-  const { currentTheme } = useThemeSwitcher();
   const address = props.value || props.address;
   const ens = useLookupAddress(props.ensProvider, address);
   const ensSplit = ens && ens.split(".");

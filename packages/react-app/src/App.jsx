@@ -12,17 +12,7 @@ import { useExchangeEthPrice } from "eth-hooks/dapps/dex";
 import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import "./App.css";
-import {
-  Account,
-  Contract,
-  Faucet,
-  GasGauge,
-  Header,
-  Ramp,
-  ThemeSwitch,
-  NetworkDisplay,
-  NetworkSwitch,
-} from "./components";
+import { Account, Contract, Header, NetworkDisplay, NetworkSwitch } from "./components";
 import { NETWORKS, ALCHEMY_KEY } from "./constants";
 import externalContracts from "./contracts/external_contracts";
 // contracts
@@ -241,8 +231,6 @@ function App(props) {
     }
   }, [loadWeb3Modal]);
 
-  const faucetAvailable = localProvider && localProvider.connection && targetNetwork.name.indexOf("local") !== -1;
-
   return (
     <div className="App">
       <Header />
@@ -258,7 +246,12 @@ function App(props) {
       <Switch>
         <Route exact path="/">
           {/* pass in any web3 props to this Home component. For example, yourLocalBalance */}
-          <Home yourLocalBalance={yourLocalBalance} readContracts={readContracts} address={address} />
+          <Home
+            yourLocalBalance={yourLocalBalance}
+            readContracts={readContracts}
+            address={address}
+            loadWeb3Modal={loadWeb3Modal}
+          />
         </Route>
         <Route exact path="/debug">
           {/*

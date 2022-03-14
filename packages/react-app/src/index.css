@@ -25,9 +25,11 @@ body {
   font-family: "Darker Grotesque" !important;
   color: #ffffff;
   font-size: 16vw !important;
-  padding: 0.1em 0 0.2em 0 !important;
+  padding: 0 0 0.2em 0 !important;
+  line-height: 1.5;
   text-shadow: -0.04em 0.04em 0 #f15bb5;
   -webkit-text-stroke: 0.03em #f15bb5;
+  margin: 0;
 }
 
 .h3-playful {
@@ -61,11 +63,21 @@ select {
   width: 200px;
 }
 
+/* .emojiboard {
+  max-width: 800px;
+  min-width: 300px;
+  display: inline-block;
+} */
+
 .img-shadow {
   -webkit-box-shadow: -5px 5px 0px 0px rgba(255, 255, 255, 1);
   -moz-box-shadow: -5px 5px 0px 0px rgba(255, 255, 255, 1);
   box-shadow: -5px 5px 0px 0px rgba(255, 255, 255, 1);
   border: 2px solid #fff;
+  max-width: 400px;
+  min-width: 200px;
+  display: inline-block;
+  margin: 1em;
 }
 
 /* Code found on https://loading.io/css/ */
