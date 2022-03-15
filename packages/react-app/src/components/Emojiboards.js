@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Image } from "antd";
+import TotalSupply from "./TotalSupply";
 
 const MORALIS_API_KEY = process.env.REACT_APP_MORALIS_API_KEY;
 const OPENSEA_CONTRACT_ADDRESS = process.env.REACT_APP_OPENSEA_CONTRACT_ADDRESS;
@@ -66,29 +67,30 @@ export default function Emojiboards(account) {
   }, [currentAccount]);
 
   return (
-    <div style={{ margin: "0px !important", padding: "10px !important", backgroundColor: "#00BBF9" }}>
+    <div style={{ margin: "0px !important", padding: "10px 10px 30px 10px", backgroundColor: "#00BBF9" }}>
       <h3 className="h3-playful">Recent Emojiboards</h3>
-      <Image.PreviewGroup>
+      <Image.PreviewGroup style={{ marginBottom: "50px" }}>
         {emojiboards &&
           emojiboards.length > 0 &&
           emojiboards.map(emojiboard => (
-            <Image className="img-shadow" src={extractImage(emojiboard[1])} alt={emojiboard[0]} caption="xxx" />
-
-            //   <ImageListItemBar
-            //     title={`Emojiboard #${emojiboard[0]}`}
-            //     subtitle={
-            //       <Link
-            //         target="_blank"
-            //         href={`https://rinkeby.opensea.io/assets/${OPENSEA_CONTRACT_ADDRESS}/${emojiboard[0]}`}
-            //         style={{ color: "#fff", fontWeight: "normal" }}
-            //       >
-            //         Check on OpenSea
-            //       </Link>
-            //     }
-            //     position="below"
-            //   />
+            <div style={{ display: "inline-block", marginBottom: "30px" }}>
+              <Image className="img-shadow" src={extractImage(emojiboard[1])} alt={emojiboard[0]} />
+              <br />
+              Emojiboard #{emojiboard[0]}
+              <br />
+              <a
+                href={`https://rinkeby.opensea.io/assets/${OPENSEA_CONTRACT_ADDRESS}/${emojiboard[0]}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#fff", fontWeight: "normal" }}
+              >
+                Check on OpenSea
+              </a>
+              <br />
+            </div>
           ))}
       </Image.PreviewGroup>
+      <TotalSupply />
     </div>
   );
   // <Box sx={{ margin: "0px !important", padding: "0px !important" }}>

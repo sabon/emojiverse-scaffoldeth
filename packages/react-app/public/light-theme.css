@@ -5025,6 +5025,7 @@ a.ant-btn-sm {
 }
 .ant-collapse-content > .ant-collapse-content-box {
   padding: 16px;
+  background-color: #ffec74;
 }
 .ant-collapse-content-inactive {
   display: none;

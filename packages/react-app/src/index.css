@@ -78,6 +78,7 @@ select {
   min-width: 200px;
   display: inline-block;
   margin: 1em;
+  bottom: 1em;
 }
 
 /* Code found on https://loading.io/css/ */

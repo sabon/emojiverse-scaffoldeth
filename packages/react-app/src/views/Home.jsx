@@ -7,6 +7,8 @@ import { Button } from "antd";
 import { WalletOutlined } from "@ant-design/icons";
 import TotalSupply from "../components/TotalSupply";
 import Emojiboards from "../components/Emojiboards";
+import FAQ from "../components/FAQ";
+import Copyright from "../components/Copyright";
 
 /**
  * web3 props can be passed from '../App.jsx' into your local view component for use
@@ -68,8 +70,10 @@ function Home({ yourLocalBalance, readContracts, address, loadWeb3Modal }) {
             Connect wallet
           </Button>
         </Content>
-        <Content style={{}}>
+        <Content>
           <Emojiboards />
+          <FAQ />
+          <Copyright />
         </Content>
       </Layout>
       <div>
