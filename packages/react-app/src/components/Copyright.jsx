@@ -8,6 +8,7 @@ const Copyright = () => {
         <a
           target="_blank"
           href="https://velvetshark.com/"
+          rel="noreferrer"
           style={{ color: "#fff", textDecoration: "underline", fontWeight: 200 }}
         >
           VelvetShark.com

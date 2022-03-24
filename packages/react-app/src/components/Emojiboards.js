@@ -5,11 +5,12 @@ import TotalSupply from "./TotalSupply";
 const MORALIS_API_KEY = process.env.REACT_APP_MORALIS_API_KEY;
 const OPENSEA_CONTRACT_ADDRESS = process.env.REACT_APP_OPENSEA_CONTRACT_ADDRESS;
 
-export default function Emojiboards(account) {
+export default function Emojiboards(props) {
   // A state variable to store created Emojiboards
   const [emojiboards, setEmojiboards] = useState([]);
   const [userEmojiboards, setUserEmojiboards] = useState([]);
-  const [currentAccount, setCurrentAccount] = useState(account.account);
+
+  const address = props.address;
 
   function extractImage(uri) {
     // Starting with character 30 because each uri start with this: "data:application/json;base64,"
@@ -46,7 +47,7 @@ export default function Emojiboards(account) {
       try {
         // Get user's emojiboards using Moralis API
         const response = await fetch(
-          `https://deep-index.moralis.io/api/v2/${currentAccount}/nft/${OPENSEA_CONTRACT_ADDRESS}?chain=rinkeby&format=decimal&limit=100`,
+          `https://deep-index.moralis.io/api/v2/${address}/nft/${OPENSEA_CONTRACT_ADDRESS}?chain=rinkeby&format=decimal&limit=100`,
           {
             headers: {
               "Content-Type": "application/json",
@@ -64,34 +65,73 @@ export default function Emojiboards(account) {
         console.error(e);
       }
     })();
-  }, [currentAccount]);
+  }, [address]);
 
   return (
-    <div style={{ margin: "0px !important", padding: "10px 10px 30px 10px", backgroundColor: "#00BBF9" }}>
-      <h3 className="h3-playful">Recent Emojiboards</h3>
-      <Image.PreviewGroup style={{ marginBottom: "50px" }}>
-        {emojiboards &&
-          emojiboards.length > 0 &&
-          emojiboards.map(emojiboard => (
-            <div style={{ display: "inline-block", marginBottom: "30px" }}>
-              <Image className="img-shadow" src={extractImage(emojiboard[1])} alt={emojiboard[0]} />
-              <br />
-              Emojiboard #{emojiboard[0]}
-              <br />
-              <a
-                href={`https://rinkeby.opensea.io/assets/${OPENSEA_CONTRACT_ADDRESS}/${emojiboard[0]}`}
-                target="_blank"
-                rel="noreferrer"
-                style={{ color: "#fff", fontWeight: "normal" }}
-              >
-                Check on OpenSea
-              </a>
-              <br />
-            </div>
-          ))}
-      </Image.PreviewGroup>
-      <TotalSupply />
-    </div>
+    <>
+      {userEmojiboards.length > 0 && (
+        <div style={{ backgroundColor: "#00F5D4", padding: "15px" }}>
+          <h3
+            className="h3-playful"
+            style={{
+              lineHeight: 0.8,
+              textShadow: "-0.04em 0.04em 0 #ffffff",
+              fontWeight: 700,
+              padding: "0.4em 0.6em",
+            }}
+          >
+            Your Emojiboards ({userEmojiboards.length})
+          </h3>
+          <Image.PreviewGroup style={{ marginBottom: "50px" }}>
+            {userEmojiboards &&
+              userEmojiboards.length > 0 &&
+              userEmojiboards.map(emojiboard => (
+                <div style={{ display: "inline-block", marginBottom: "30px" }}>
+                  <Image className="img-shadow" src={extractImage(emojiboard[1])} alt={emojiboard[0]} />
+                  <br />
+                  Emojiboard #{emojiboard[0]}
+                  <br />
+                  <a
+                    href={`https://rinkeby.opensea.io/assets/${OPENSEA_CONTRACT_ADDRESS}/${emojiboard[0]}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: "#fff", fontWeight: "normal" }}
+                  >
+                    Check on OpenSea
+                  </a>
+                  <br />
+                </div>
+              ))}
+          </Image.PreviewGroup>
+        </div>
+      )}
+
+      <div style={{ margin: "0px !important", padding: "10px 10px 30px 10px", backgroundColor: "#00BBF9" }}>
+        <h3 className="h3-playful">Recent Emojiboards</h3>
+        <Image.PreviewGroup style={{ marginBottom: "50px" }}>
+          {emojiboards &&
+            emojiboards.length > 0 &&
+            emojiboards.map(emojiboard => (
+              <div style={{ display: "inline-block", marginBottom: "30px" }}>
+                <Image className="img-shadow" src={extractImage(emojiboard[1])} alt={emojiboard[0]} />
+                <br />
+                Emojiboard #{emojiboard[0]}
+                <br />
+                <a
+                  href={`https://rinkeby.opensea.io/assets/${OPENSEA_CONTRACT_ADDRESS}/${emojiboard[0]}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#fff", fontWeight: "normal" }}
+                >
+                  Check on OpenSea
+                </a>
+                <br />
+              </div>
+            ))}
+        </Image.PreviewGroup>
+        <TotalSupply />
+      </div>
+    </>
   );
   // <Box sx={{ margin: "0px !important", padding: "0px !important" }}>
   //   <Box sx={{ margin: "0px !important", padding: "0px !important" }}>

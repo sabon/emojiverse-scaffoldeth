@@ -30,7 +30,8 @@ const { Text } = Typography;
   - Provide fontSize={fontSize} to change the size of address text
 **/
 
-const blockExplorerLink = (address, blockExplorer) => `${blockExplorer || "https://etherscan.io/"}address/${address}`;
+const blockExplorerLink = (address, blockExplorer) =>
+  `${blockExplorer || "https://rinkeby.etherscan.io/"}address/${address}`;
 
 export default function Address(props) {
   const address = props.value || props.address;
@@ -38,7 +39,7 @@ export default function Address(props) {
   const ensSplit = ens && ens.split(".");
   const validEnsCheck = ensSplit && ensSplit[ensSplit.length - 1] === "eth";
   const etherscanLink = blockExplorerLink(address, props.blockExplorer);
-  let displayAddress = address?.substr(0, 5) + "..." + address?.substr(-4);
+  let displayAddress = address?.substr(0, 5) + "•••" + address?.substr(-4);
 
   if (validEnsCheck) {
     displayAddress = ens;
