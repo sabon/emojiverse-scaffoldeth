@@ -46,7 +46,7 @@ function Home({ yourLocalBalance, readContracts, address, loadWeb3Modal }) {
                   padding: "0.4em 0.6em",
                 }}
               >
-                Show what you are about, one emoji at a time.
+                Express yourself, one emoji at a time.
               </h3>
               Choose from 1 to 4 message types, add emoji to each, and put it on the blockchain forever. Then show it to
               the world!
@@ -57,7 +57,7 @@ function Home({ yourLocalBalance, readContracts, address, loadWeb3Modal }) {
             <>
               <h1 className="big-title">Emojiverse</h1>
               <h3 style={{ marginTop: 0, marginBottom: 0, fontWeight: 700, fontSize: "1.5rem" }}>
-                Show what you are about, one emoji at a time.
+                Express yourself, one emoji at a time.
               </h3>
               <div
                 style={{

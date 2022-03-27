@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Link, Route, Switch, useLocation } from "react-router-dom";
 import { Contract, NetworkDisplay, NetworkSwitch } from "./../components";
 import { NETWORKS, ALCHEMY_KEY } from "./../constants";
 import externalContracts from "./../contracts/external_contracts";
 // contracts
 import deployedContracts from "./../contracts/hardhat_contracts.json";
+import { Transactor, Web3ModalSetup } from "./../helpers";
 import { useContractLoader, useContractReader, useUserProviderAndSigner } from "eth-hooks";
 
 import { useStaticJsonRPC } from "./../hooks";
@@ -41,6 +42,19 @@ const EmojiForm = () => {
   const networkOptions = [initialNetwork.name, "mainnet", "rinkeby"];
 
   const [injectedProvider, setInjectedProvider] = useState();
+  const [address, setAddress] = useState();
+
+  const web3Modal = Web3ModalSetup();
+
+  const logoutOfWeb3Modal = async () => {
+    await web3Modal.clearCachedProvider();
+    if (injectedProvider && injectedProvider.provider && typeof injectedProvider.provider.disconnect == "function") {
+      await injectedProvider.provider.disconnect();
+    }
+    setTimeout(() => {
+      window.location.reload();
+    }, 1);
+  };
 
   // const [address, setAddress] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
@@ -54,11 +68,19 @@ const EmojiForm = () => {
   ]);
 
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider, false);
+  console.log("injectedProvider: ", injectedProvider);
+
   const userSigner = userProviderAndSigner.signer;
 
-  const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
-
-  const readContracts = useContractLoader(localProvider, contractConfig);
+  useEffect(() => {
+    async function getAddress() {
+      if (userSigner) {
+        const newAddress = await userSigner.getAddress();
+        setAddress(newAddress);
+      }
+    }
+    getAddress();
+  }, [userSigner]);
 
   // You can warn the user if you would like them to be on a specific network
   const localChainId = localProvider && localProvider._network && localProvider._network.chainId;
@@ -66,9 +88,43 @@ const EmojiForm = () => {
     userSigner && userSigner.provider && userSigner.provider._network && userSigner.provider._network.chainId;
 
   const mainnetProvider = useStaticJsonRPC(providers);
-  const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
 
-  const Emojiverse = useContractReader(readContracts, "Emojiverse");
+  const contractConfig = { deployedContracts: deployedContracts || {}, externalContracts: externalContracts || {} };
+
+  const readContracts = useContractLoader(localProvider, contractConfig);
+  const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
+  console.log("userSigner: ", userSigner);
+
+  const EmojiverseContract = writeContracts.Emojiverse;
+  console.log("Emojiverse contract: ", EmojiverseContract);
+
+  const loadWeb3Modal = useCallback(async () => {
+    const provider = await web3Modal.connect();
+    setInjectedProvider(new ethers.providers.Web3Provider(provider));
+
+    provider.on("chainChanged", chainId => {
+      console.log(`chain changed to ${chainId}! updating providers`);
+      setInjectedProvider(new ethers.providers.Web3Provider(provider));
+    });
+
+    provider.on("accountsChanged", () => {
+      console.log(`account changed!`);
+      setInjectedProvider(new ethers.providers.Web3Provider(provider));
+    });
+
+    // Subscribe to session disconnection
+    provider.on("disconnect", (code, reason) => {
+      console.log(code, reason);
+      logoutOfWeb3Modal();
+    });
+    // eslint-disable-next-line
+  }, [setInjectedProvider]);
+
+  useEffect(() => {
+    if (web3Modal.cachedProvider) {
+      loadWeb3Modal();
+    }
+  }, [loadWeb3Modal]);
 
   const handleSubmit = values => {
     // values.preventDefault();
@@ -96,8 +152,8 @@ const EmojiForm = () => {
     }
 
     if (values.msg3.message) {
-      messages.push(formValues.msg3);
-      if (values.msg3 === "gm") {
+      messages.push(values.msg3.message);
+      if (values.msg3.message === "gm") {
         emojis.push("");
       } else {
         emojis.push(handleEmoji(values.msg3.emoji));
@@ -105,8 +161,8 @@ const EmojiForm = () => {
     }
 
     if (values.msg4.message) {
-      messages.push(formValues.msg4);
-      if (values.msg4 === "gm") {
+      messages.push(values.msg4.message);
+      if (values.msg4.message === "gm") {
         emojis.push("");
       } else {
         emojis.push(handleEmoji(values.msg4.emoji));
@@ -121,15 +177,15 @@ const EmojiForm = () => {
 
   const askContractToMintNft = async (emojis, messages) => {
     try {
-      if (writeContracts) {
+      if (EmojiverseContract) {
         console.log("Minting NFT");
-        console.log("writeContracts:", writeContracts("Emojiverse"));
+        console.log("writeContracts:", writeContracts);
         setMintState("minting");
-        const mintTxn = await writeContracts.mintEmojiverseNFT(emojis, messages, { gasLimit: 5000000 });
+        const mintTxn = await EmojiverseContract.mintEmojiverseNFT(emojis, messages, { gasLimit: 5000000 });
         console.log(`See transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
         setMintState("minted");
         // Listen to the contract's CreatedEmojiboard event
-        Emojiverse.on("CreatedEmojiboard", (tokenId, tokenURI) => {
+        EmojiverseContract.on("CreatedEmojiboard", (tokenId, tokenURI) => {
           console.log(`Token #${tokenId} minted. tokenURI: ${tokenURI}`);
           // Set the mintedEmojiboard in state.
           setMintedEmojiboard([tokenId.toString(), JSON.parse(Buffer.from(tokenURI.substring(29), "base64")).image]);
@@ -194,15 +250,6 @@ const EmojiForm = () => {
         fontSize: "1rem",
       }}
     >
-      <Contract
-        name="Emojiverse"
-        price={""}
-        signer={userSigner}
-        provider={localProvider}
-        address={""}
-        blockExplorer={""}
-        contractConfig={contractConfig}
-      />
       <Tooltip title="If you're on your Mac, press: CONTROL + COMMAND + SPACE. On Windows, press: WINDOWS LOGO KEY + . (period)'">
         ❓ <span style={{ cursor: "pointer", textDecoration: "underline dotted red" }}>How to type an emoji?</span>
       </Tooltip>
