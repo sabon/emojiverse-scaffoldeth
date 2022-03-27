@@ -22,5 +22,7 @@ Uses scaffold-eth as a starting point.
 # Built by
 
 Radek Sienkiewicz
+
 https://velvetshark.com
+
 https://twitter.com/sabon23/
