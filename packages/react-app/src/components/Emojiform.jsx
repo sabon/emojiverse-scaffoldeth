@@ -21,7 +21,7 @@ const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS;
 const OPENSEA_CONTRACT_ADDRESS = process.env.REACT_APP_OPENSEA_CONTRACT_ADDRESS;
 
 /// 📡 What chain are your contracts deployed to?
-const initialNetwork = NETWORKS.localhost; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
+const initialNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 🛰 providers
 const providers = [
@@ -68,7 +68,6 @@ const EmojiForm = () => {
   ]);
 
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider, false);
-  console.log("injectedProvider: ", injectedProvider);
 
   const userSigner = userProviderAndSigner.signer;
 
@@ -93,9 +92,8 @@ const EmojiForm = () => {
 
   const readContracts = useContractLoader(localProvider, contractConfig);
   const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
-  console.log("userSigner: ", userSigner);
 
-  const EmojiverseContract = writeContracts.Emojiverse;
+  const EmojiverseContract = writeContracts;
   console.log("Emojiverse contract: ", EmojiverseContract);
 
   const loadWeb3Modal = useCallback(async () => {
@@ -181,7 +179,7 @@ const EmojiForm = () => {
         console.log("Minting NFT");
         console.log("writeContracts:", writeContracts);
         setMintState("minting");
-        const mintTxn = await EmojiverseContract.mintEmojiverseNFT(emojis, messages, { gasLimit: 5000000 });
+        const mintTxn = await writeContracts.Emojiverse.mintEmojiverseNFT(emojis, messages, { gasLimit: 5000000 });
         console.log(`See transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
         setMintState("minted");
         // Listen to the contract's CreatedEmojiboard event
@@ -444,193 +442,6 @@ const EmojiForm = () => {
       </div>
     </div>
   );
-  //     <Box
-  //       component="form"
-  //       textAlign="center"
-  //       sx={{ mb: 5, "& .MuiTextField-root": { m: 1, width: "25ch" } }}
-  //       // onSubmit={onFinish}
-  //       onSubmit={handleSubmit}
-  //     >
-  //       <Tooltip
-  //         title="If you're on your Mac, press: CONTROL + COMMAND + SPACE. On Windows, press: WINDOWS LOGO KEY + . (period)'"
-  //         style={{ textTransform: "none" }}
-  //       >
-  //         <Button>❓ How to type an emoji?</Button>
-  //       </Tooltip>
-  //       <div>
-  //         <FormControl style={{ width: "180px", marginTop: "8px", backgroundColor: "white" }}>
-  //           <InputLabel id="message-1-label">Message #1</InputLabel>
-  //           <Select
-  //             required
-  //             labelId="message-1-label"
-  //             id="message-1"
-  //             label="Age"
-  //             // value={"" || formValues.msg1}
-  //             name="msg1"
-  //             onChange={handleInputChange}
-  //           >
-  //             <MenuItem value="gm">gm</MenuItem>
-  //             <MenuItem value="I am...">I am...</MenuItem>
-  //             <MenuItem value="I feel...">I feel...</MenuItem>
-  //             <MenuItem value="I like...">I like...</MenuItem>
-  //             <MenuItem value="I want...">I want...</MenuItem>
-  //             <MenuItem value="I think...">I think...</MenuItem>
-  //             <MenuItem value="I do...">I do...</MenuItem>
-  //             <MenuItem value="I believe in...">I believe in...</MenuItem>
-  //             <MenuItem value="I build...">I build...</MenuItem>
-  //           </Select>
-  //         </FormControl>
-  //         <TextField
-  //           id="outlined-1"
-  //           label="Enter 1 emoji"
-  //           // value={"" || formValues.emoji1}
-  //           name="emoji1"
-  //           onChange={handleInputChange}
-  //           style={{ width: "140px", backgroundColor: "white", visibility: formValues.msg1 === "gm" ? "hidden" : "" }}
-  //         />
-  //       </div>
-  //       <div>
-  //         <FormControl style={{ width: "180px", marginTop: "8px", backgroundColor: "white" }}>
-  //           <InputLabel id="message-2-label">Message #2</InputLabel>
-  //           <Select
-  //             labelId="message-2-label"
-  //             id="message-2"
-  //             label="Age"
-  //             // value=""
-  //             name="msg2"
-  //             onChange={handleInputChange}
-  //           >
-  //             <MenuItem value="gm">gm</MenuItem>
-  //             <MenuItem value="I am...">I am...</MenuItem>
-  //             <MenuItem value="I feel...">I feel...</MenuItem>
-  //             <MenuItem value="I like...">I like...</MenuItem>
-  //             <MenuItem value="I want...">I want...</MenuItem>
-  //             <MenuItem value="I think...">I think...</MenuItem>
-  //             <MenuItem value="I do...">I do...</MenuItem>
-  //             <MenuItem value="I believe in...">I believe in...</MenuItem>
-  //             <MenuItem value="I build...">I build...</MenuItem>
-  //           </Select>
-  //         </FormControl>
-  //         <TextField
-  //           id="outlined-2"
-  //           label="Enter 1 emoji"
-  //           // value=""
-  //           name="emoji2"
-  //           onChange={handleInputChange}
-  //           style={{ width: "140px", backgroundColor: "white", visibility: formValues.msg2 === "gm" ? "hidden" : "" }}
-  //         />
-  //       </div>
-  //       <div>
-  //         <FormControl style={{ width: "180px", marginTop: "8px", backgroundColor: "white" }}>
-  //           <InputLabel id="message-3-label">Message #3</InputLabel>
-  //           <Select
-  //             labelId="message-3-label"
-  //             id="message-3"
-  //             label="Age"
-  //             // value=""
-  //             name="msg3"
-  //             onChange={handleInputChange}
-  //           >
-  //             <MenuItem value="gm">gm</MenuItem>
-  //             <MenuItem value="I am...">I am...</MenuItem>
-  //             <MenuItem value="I feel...">I feel...</MenuItem>
-  //             <MenuItem value="I like...">I like...</MenuItem>
-  //             <MenuItem value="I want...">I want...</MenuItem>
-  //             <MenuItem value="I think...">I think...</MenuItem>
-  //             <MenuItem value="I do...">I do...</MenuItem>
-  //             <MenuItem value="I believe in...">I believe in...</MenuItem>
-  //             <MenuItem value="I build...">I build...</MenuItem>
-  //           </Select>
-  //         </FormControl>
-  //         <TextField
-  //           id="outlined-3"
-  //           label="Enter 1 emoji"
-  //           // value=""
-  //           name="emoji3"
-  //           onChange={handleInputChange}
-  //           style={{ width: "140px", backgroundColor: "white", visibility: formValues.msg3 === "gm" ? "hidden" : "" }}
-  //         />
-  //       </div>
-  //       <div>
-  //         <FormControl style={{ width: "180px", marginTop: "8px", backgroundColor: "white" }}>
-  //           <InputLabel id="message-4-label">Message #4</InputLabel>
-  //           <Select
-  //             labelId="message-4-label"
-  //             id="message-4"
-  //             label="Age"
-  //             // value=""
-  //             name="msg4"
-  //             onChange={handleInputChange}
-  //           >
-  //             <MenuItem value="gm">gm</MenuItem>
-  //             <MenuItem value="I am...">I am...</MenuItem>
-  //             <MenuItem value="I feel...">I feel...</MenuItem>
-  //             <MenuItem value="I like...">I like...</MenuItem>
-  //             <MenuItem value="I want...">I want...</MenuItem>
-  //             <MenuItem value="I think...">I think...</MenuItem>
-  //             <MenuItem value="I do...">I do...</MenuItem>
-  //             <MenuItem value="I believe in...">I believe in...</MenuItem>
-  //             <MenuItem value="I build...">I build...</MenuItem>
-  //           </Select>
-  //         </FormControl>
-  //         <TextField
-  //           id="outlined-4"
-  //           label="Enter 1 emoji"
-  //           // value=""
-  //           name="emoji4"
-  //           onChange={handleInputChange}
-  //           style={{ width: "140px", backgroundColor: "white", visibility: formValues.msg4 === "gm" ? "hidden" : "" }}
-  //         />
-  //       </div>
-  //       <Button
-  //         type="submit"
-  //         variant="contained"
-  //         disabled={mintState === "minting" ? "true" : ""}
-  //         size="large"
-  //         color="primary"
-  //         style={{ marginTop: "10px" }}
-  //       >
-  //         Create your Emojiboard
-  //       </Button>
-  //       {mintState === "minting" && (
-  //         <div className="loading-indicator">
-  //           <LoadingIndicator />
-  //           <p>Creating your Emojiboard...</p>
-  //         </div>
-  //       )}
-  //     </Box>
-  //     {mintedEmojiboard.length > 0 && (
-  //       <Container maxWidth="sm" sx={{ mt: 0, pb: 2, backgroundColor: "#fee440" }}>
-  //         <Box id="minted-emojiboard" sx={{ backgroundColor: "#9B5DE5", padding: "0px 15px 5px 15px" }}>
-  //           <Typography sx={{ mt: 7, mb: 3 }} color="text.secondary">
-  //             <Typography variant="h5" component="h3" sx={{ pt: "20px", pb: "10px", fontWeight: 600, color: "#fff" }}>
-  //               You have minted your Emojiboard!
-  //             </Typography>
-  //             <Typography sx={{ pt: "10px", pb: "30px", fontWeight: 400, textAlign: "left", color: "#fff" }}>
-  //               It can take a while for your Emojiboard to be available on OpenSea. You can try reloading in 1-2
-  //               minutes. In the meantime, here's how your Emojiboard is going to look like:
-  //             </Typography>
-  //             <div style={{ marginBottom: "15px" }}>
-  //               <span
-  //                 style={{ fontWeight: 700, textAlign: "left", display: "block", marginBottom: "5px", color: "#fff" }}
-  //               >
-  //                 Emojiboard #{mintedEmojiboard[0]}&nbsp;&nbsp;
-  //                 <Link
-  //                   color="inherit"
-  //                   href={`https://rinkeby.opensea.io/assets/${OPENSEA_CONTRACT_ADDRESS}/${mintedEmojiboard[0]}`}
-  //                   style={{ color: "#dded00", fontSize: "0.8em", fontWeight: "normal" }}
-  //                 >
-  //                   (Check on OpenSea)
-  //                 </Link>
-  //               </span>
-  //               <img src={mintedEmojiboard[1]} width="100%" alt={`Emojiboard #${mintedEmojiboard[0]}`} />
-  //             </div>
-  //           </Typography>
-  //         </Box>
-  //       </Container>
-  //     )}
-  //   </>
-  // );
 };
 
 export default EmojiForm;
