@@ -24,7 +24,7 @@ export default function TotalSupply() {
           },
         );
         const json = await response.json();
-        console.log(json);
+
         // For each emojiboard, get the id and token_uri and set them as a pair in the emojiboards array
         setTotalSupply(json.total);
       } catch (e) {

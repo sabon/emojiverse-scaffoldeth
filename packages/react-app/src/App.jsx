@@ -45,7 +45,7 @@ const { ethers } = require("ethers");
 const initialNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
 
 // 😬 Sorry for all the console logging
-const DEBUG = true;
+const DEBUG = false; // <------- change to `true` to enable console logging in development
 const NETWORKCHECK = true;
 const USE_BURNER_WALLET = false; // toggle burner wallet feature
 const USE_NETWORK_SELECTOR = false;
@@ -54,6 +54,7 @@ const web3Modal = Web3ModalSetup();
 
 // 🛰 providers
 const providers = [
+  `https://eth-rinkeby.alchemyapi.io/v2/${ALCHEMY_KEY}`,
   "https://eth-mainnet.gateway.pokt.network/v1/lb/611156b4a585a20035148406",
   `https://eth-mainnet.alchemyapi.io/v2/${ALCHEMY_KEY}`,
   "https://rpc.scaffoldeth.io:48544",

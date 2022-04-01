@@ -94,10 +94,8 @@ const EmojiForm = () => {
   const writeContracts = useContractLoader(userSigner, contractConfig, localChainId);
 
   const EmojiverseContract = writeContracts;
-  console.log("Emojiverse contract: ", EmojiverseContract);
 
   const EmojiverseContractRead = readContracts;
-  console.log("Emojiverse read contract: ", EmojiverseContractRead);
 
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
@@ -180,7 +178,6 @@ const EmojiForm = () => {
     try {
       if (EmojiverseContract) {
         console.log("Minting NFT");
-        console.log("writeContracts:", writeContracts);
         setMintState("minting");
 
         const mintTxn = await writeContracts.Emojiverse.mintEmojiverseNFT(emojis, messages, { gasLimit: 5000000 });
