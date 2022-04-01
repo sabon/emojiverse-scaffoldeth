@@ -1,24 +1,23 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Link, Route, Switch, useLocation } from "react-router-dom";
-import { Contract, NetworkDisplay, NetworkSwitch } from "./../components";
+import { NetworkDisplay, NetworkSwitch } from "./../components";
 import { NETWORKS, ALCHEMY_KEY } from "./../constants";
-import externalContracts from "./../contracts/external_contracts";
+
 // contracts
 import deployedContracts from "./../contracts/hardhat_contracts.json";
+import externalContracts from "./../contracts/external_contracts";
+
 import { Transactor, Web3ModalSetup } from "./../helpers";
 import { useContractLoader, useContractReader, useUserProviderAndSigner } from "eth-hooks";
 
 import { useStaticJsonRPC } from "./../hooks";
 import { ethers } from "ethers";
-// import Emojiverse from "../artifacts/contracts/EmojiSVG.sol/Emojiverse.json";
-// import LoadingIndicator from "./LoadingIndicator";
 import GraphemeSplitter from "grapheme-splitter";
 
-import { Form, Input, Select, Tooltip, Button, Space, Typography } from "antd";
+import { Form, Input, Select, Tooltip, Button, Image, Typography } from "antd";
 import { format } from "prettier";
 
-const CONTRACT_ADDRESS = process.env.REACT_APP_CONTRACT_ADDRESS;
-const OPENSEA_CONTRACT_ADDRESS = process.env.REACT_APP_OPENSEA_CONTRACT_ADDRESS;
+import LoadingIndicator from "./LoadingIndicator";
+import Emojiboards from "./Emojiboards";
 
 /// 📡 What chain are your contracts deployed to?
 const initialNetwork = NETWORKS.rinkeby; // <------- select your target frontend network (localhost, rinkeby, xdai, mainnet)
@@ -36,6 +35,8 @@ const EmojiForm = () => {
 
   const [mintState, setMintState] = useState("");
   const [mintedEmojiboard, setMintedEmojiboard] = useState([]);
+
+  const OPENSEA_CONTRACT_ADDRESS = process.env.REACT_APP_OPENSEA_CONTRACT_ADDRESS;
 
   // specify all the chains your app is available on. Eg: ['localhost', 'mainnet', ...otherNetworks ]
   // reference './constants.js' for other networks
@@ -58,7 +59,6 @@ const EmojiForm = () => {
 
   // const [address, setAddress] = useState();
   const [selectedNetwork, setSelectedNetwork] = useState(networkOptions[0]);
-  const location = useLocation();
 
   const targetNetwork = NETWORKS[selectedNetwork];
 
@@ -95,6 +95,9 @@ const EmojiForm = () => {
 
   const EmojiverseContract = writeContracts;
   console.log("Emojiverse contract: ", EmojiverseContract);
+
+  const EmojiverseContractRead = readContracts;
+  console.log("Emojiverse read contract: ", EmojiverseContractRead);
 
   const loadWeb3Modal = useCallback(async () => {
     const provider = await web3Modal.connect();
@@ -179,14 +182,19 @@ const EmojiForm = () => {
         console.log("Minting NFT");
         console.log("writeContracts:", writeContracts);
         setMintState("minting");
+
         const mintTxn = await writeContracts.Emojiverse.mintEmojiverseNFT(emojis, messages, { gasLimit: 5000000 });
+
         console.log(`See transaction: https://rinkeby.etherscan.io/tx/${mintTxn.hash}`);
         setMintState("minted");
+
         // Listen to the contract's CreatedEmojiboard event
-        EmojiverseContract.on("CreatedEmojiboard", (tokenId, tokenURI) => {
+        readContracts.Emojiverse.on("CreatedEmojiboard", (tokenId, tokenURI) => {
           console.log(`Token #${tokenId} minted. tokenURI: ${tokenURI}`);
+
           // Set the mintedEmojiboard in state.
           setMintedEmojiboard([tokenId.toString(), JSON.parse(Buffer.from(tokenURI.substring(29), "base64")).image]);
+
           // Wait 30 seconds and hide the message
           setTimeout(() => setMintedEmojiboard([]), 30000);
         }).on("error", console.error);
@@ -218,6 +226,11 @@ const EmojiForm = () => {
     }
   };
 
+  function extractImage(uri) {
+    // Starting with character 30 because each uri start with this: "data:application/json;base64,"
+    return uri ? JSON.parse(Buffer.from(uri.substring(29), "base64")).image : "";
+  }
+
   // useEffect(() => {
   //   const { ethereum } = window;
 
@@ -236,211 +249,275 @@ const EmojiForm = () => {
   // }, []);
 
   return (
-    <div
-      style={{
-        maxWidth: "600px",
-        margin: "1em auto",
-        paddingLeft: "24px",
-        paddingRight: "24px",
-        paddingBottom: "16px",
-        paddingTop: "16px",
-        textAlign: "center",
-        fontSize: "1rem",
-      }}
-    >
-      <Tooltip title="If you're on your Mac, press: CONTROL + COMMAND + SPACE. On Windows, press: WINDOWS LOGO KEY + . (period)'">
-        ❓ <span style={{ cursor: "pointer", textDecoration: "underline dotted red" }}>How to type an emoji?</span>
-      </Tooltip>
-      <div>
-        <Form
-          name="complex-form"
-          // layout="inline"
-          size="large"
-          // onSubmit={handleSubmit}
-          onFinish={handleSubmit}
-          style={{ textAlign: "left", margin: "2em auto 0 auto", width: "350px" }}
-        >
-          <Form.Item style={{ margin: 0 }}>
-            <Input.Group>
-              <Form.Item
-                name={["msg1", "message"]}
-                rules={[{ required: true, message: "At least 1 msg is required" }]}
-                style={{ display: "inline-block" }}
-              >
-                <Select
-                  placeholder="Message #1"
-                  style={{ width: "200px", marginRight: "10px" }}
+    <>
+      <div
+        style={{
+          maxWidth: "600px",
+          margin: "1em auto",
+          paddingLeft: "24px",
+          paddingRight: "24px",
+          paddingBottom: "16px",
+          paddingTop: "16px",
+          textAlign: "center",
+          fontSize: "1rem",
+        }}
+      >
+        <Tooltip title="If you're on your Mac, press: CONTROL + COMMAND + SPACE. On Windows, press: WINDOWS LOGO KEY + . (period)'">
+          ❓ <span style={{ cursor: "pointer", textDecoration: "underline dotted red" }}>How to type an emoji?</span>
+        </Tooltip>
+        <div>
+          <Form
+            name="complex-form"
+            // layout="inline"
+            size="large"
+            // onSubmit={handleSubmit}
+            onFinish={handleSubmit}
+            style={{ textAlign: "left", margin: "2em auto 0 auto", width: "350px" }}
+          >
+            <Form.Item style={{ margin: 0 }}>
+              <Input.Group>
+                <Form.Item
+                  name={["msg1", "message"]}
+                  rules={[{ required: true, message: "At least 1 msg is required" }]}
+                  style={{ display: "inline-block" }}
+                >
+                  <Select
+                    placeholder="Message #1"
+                    style={{ width: "200px", marginRight: "10px" }}
+                    onChange={e => {
+                      setFormValues({
+                        ...formValues,
+                        msg1: e,
+                      });
+                    }}
+                  >
+                    <Select.Option value="gm">gm</Select.Option>
+                    <Select.Option value="I am...">I am...</Select.Option>
+                    <Select.Option value="I feel...">I feel...</Select.Option>
+                    <Select.Option value="I like...">I like...</Select.Option>
+                    <Select.Option value="I want...">I want...</Select.Option>
+                    <Select.Option value="I think...">I think...</Select.Option>
+                    <Select.Option value="I do...">I do...</Select.Option>
+                    <Select.Option value="I believe in...">I believe in...</Select.Option>
+                    <Select.Option value="I build...">I build...</Select.Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  name={["msg1", "emoji"]}
+                  // rules={[{ required: true, message: "Emoji is required" }]}
                   onChange={e => {
                     setFormValues({
                       ...formValues,
-                      msg1: e,
+                      emoji1: e.target.value,
                     });
                   }}
+                  style={{
+                    display: "inline-block",
+                    visibility: formValues["msg1"] === "gm" ? "hidden" : "visible",
+                  }}
                 >
-                  <Select.Option value="gm">gm</Select.Option>
-                  <Select.Option value="I am...">I am...</Select.Option>
-                  <Select.Option value="I feel...">I feel...</Select.Option>
-                  <Select.Option value="I like...">I like...</Select.Option>
-                  <Select.Option value="I want...">I want...</Select.Option>
-                  <Select.Option value="I think...">I think...</Select.Option>
-                  <Select.Option value="I do...">I do...</Select.Option>
-                  <Select.Option value="I believe in...">I believe in...</Select.Option>
-                  <Select.Option value="I build...">I build...</Select.Option>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name={["msg1", "emoji"]}
-                // rules={[{ required: true, message: "Emoji is required" }]}
-                onChange={e => {
-                  setFormValues({
-                    ...formValues,
-                    emoji1: e.target.value,
-                  });
-                }}
-                style={{
-                  display: "inline-block",
-                  visibility: formValues["msg1"] === "gm" ? "hidden" : "visible",
-                }}
-              >
-                <Input style={{ width: "140px" }} maxLength="5" placeholder="Enter 1 emoji" />
-              </Form.Item>
-            </Input.Group>
-          </Form.Item>
+                  <Input style={{ width: "140px" }} maxLength="5" placeholder="Enter 1 emoji" />
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
 
-          <Form.Item style={{ margin: 0 }}>
-            <Input.Group>
-              <Form.Item name={["msg2", "message"]} style={{ display: "inline-block" }}>
-                <Select
-                  placeholder="Message #2"
-                  style={{ width: "200px", marginRight: "10px" }}
+            <Form.Item style={{ margin: 0 }}>
+              <Input.Group>
+                <Form.Item name={["msg2", "message"]} style={{ display: "inline-block" }}>
+                  <Select
+                    placeholder="Message #2"
+                    style={{ width: "200px", marginRight: "10px" }}
+                    onChange={e => {
+                      setFormValues({
+                        ...formValues,
+                        msg2: e,
+                      });
+                    }}
+                  >
+                    <Select value="gm">gm</Select>
+                    <Select value="I am...">I am...</Select>
+                    <Select value="I feel...">I feel...</Select>
+                    <Select value="I like...">I like...</Select>
+                    <Select value="I want...">I want...</Select>
+                    <Select value="I think...">I think...</Select>
+                    <Select value="I do...">I do...</Select>
+                    <Select value="I believe in...">I believe in...</Select>
+                    <Select value="I build...">I build...</Select>
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  name={["msg2", "emoji"]}
                   onChange={e => {
                     setFormValues({
                       ...formValues,
-                      msg2: e,
+                      emoji2: e.target.value,
                     });
                   }}
+                  style={{
+                    display: "inline-block",
+                    visibility: formValues["msg2"] === "gm" ? "hidden" : "visible",
+                  }}
                 >
-                  <Select value="gm">gm</Select>
-                  <Select value="I am...">I am...</Select>
-                  <Select value="I feel...">I feel...</Select>
-                  <Select value="I like...">I like...</Select>
-                  <Select value="I want...">I want...</Select>
-                  <Select value="I think...">I think...</Select>
-                  <Select value="I do...">I do...</Select>
-                  <Select value="I believe in...">I believe in...</Select>
-                  <Select value="I build...">I build...</Select>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name={["msg2", "emoji"]}
-                onChange={e => {
-                  setFormValues({
-                    ...formValues,
-                    emoji2: e.target.value,
-                  });
-                }}
-                style={{
-                  display: "inline-block",
-                  visibility: formValues["msg2"] === "gm" ? "hidden" : "visible",
-                }}
-              >
-                <Input style={{ width: "140px" }} maxLength="5" placeholder="Enter 1 emoji" />
-              </Form.Item>
-            </Input.Group>
-          </Form.Item>
+                  <Input style={{ width: "140px" }} maxLength="5" placeholder="Enter 1 emoji" />
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
 
-          <Form.Item style={{ margin: 0 }}>
-            <Input.Group>
-              <Form.Item name={["msg3", "message"]} style={{ display: "inline-block" }}>
-                <Select
-                  placeholder="Message #3"
-                  style={{ width: "200px", marginRight: "10px" }}
+            <Form.Item style={{ margin: 0 }}>
+              <Input.Group>
+                <Form.Item name={["msg3", "message"]} style={{ display: "inline-block" }}>
+                  <Select
+                    placeholder="Message #3"
+                    style={{ width: "200px", marginRight: "10px" }}
+                    onChange={e => {
+                      setFormValues({
+                        ...formValues,
+                        msg3: e,
+                      });
+                    }}
+                  >
+                    <Select value="gm">gm</Select>
+                    <Select value="I am...">I am...</Select>
+                    <Select value="I feel...">I feel...</Select>
+                    <Select value="I like...">I like...</Select>
+                    <Select value="I want...">I want...</Select>
+                    <Select value="I think...">I think...</Select>
+                    <Select value="I do...">I do...</Select>
+                    <Select value="I believe in...">I believe in...</Select>
+                    <Select value="I build...">I build...</Select>
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  name={["msg3", "emoji"]}
                   onChange={e => {
                     setFormValues({
                       ...formValues,
-                      msg3: e,
+                      emoji3: e.target.value,
                     });
                   }}
+                  style={{
+                    display: "inline-block",
+                    visibility: formValues["msg3"] === "gm" ? "hidden" : "visible",
+                  }}
                 >
-                  <Select value="gm">gm</Select>
-                  <Select value="I am...">I am...</Select>
-                  <Select value="I feel...">I feel...</Select>
-                  <Select value="I like...">I like...</Select>
-                  <Select value="I want...">I want...</Select>
-                  <Select value="I think...">I think...</Select>
-                  <Select value="I do...">I do...</Select>
-                  <Select value="I believe in...">I believe in...</Select>
-                  <Select value="I build...">I build...</Select>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name={["msg3", "emoji"]}
-                onChange={e => {
-                  setFormValues({
-                    ...formValues,
-                    emoji3: e.target.value,
-                  });
-                }}
-                style={{
-                  display: "inline-block",
-                  visibility: formValues["msg3"] === "gm" ? "hidden" : "visible",
-                }}
-              >
-                <Input style={{ width: "140px" }} maxLength="5" placeholder="Enter 1 emoji" />
-              </Form.Item>
-            </Input.Group>
-          </Form.Item>
+                  <Input style={{ width: "140px" }} maxLength="5" placeholder="Enter 1 emoji" />
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
 
-          <Form.Item style={{ margin: 0 }}>
-            <Input.Group>
-              <Form.Item name={["msg4", "message"]} style={{ display: "inline-block" }}>
-                <Select
-                  placeholder="Message #4"
-                  style={{ width: "200px", marginRight: "10px" }}
+            <Form.Item style={{ margin: 0 }}>
+              <Input.Group>
+                <Form.Item name={["msg4", "message"]} style={{ display: "inline-block" }}>
+                  <Select
+                    placeholder="Message #4"
+                    style={{ width: "200px", marginRight: "10px" }}
+                    onChange={e => {
+                      setFormValues({
+                        ...formValues,
+                        msg4: e,
+                      });
+                    }}
+                  >
+                    <Select value="gm">gm</Select>
+                    <Select value="I am...">I am...</Select>
+                    <Select value="I feel...">I feel...</Select>
+                    <Select value="I like...">I like...</Select>
+                    <Select value="I want...">I want...</Select>
+                    <Select value="I think...">I think...</Select>
+                    <Select value="I do...">I do...</Select>
+                    <Select value="I believe in...">I believe in...</Select>
+                    <Select value="I build...">I build...</Select>
+                  </Select>
+                </Form.Item>
+                <Form.Item
+                  name={["msg4", "emoji"]}
                   onChange={e => {
                     setFormValues({
                       ...formValues,
-                      msg4: e,
+                      emoji4: e.target.value,
                     });
                   }}
+                  style={{
+                    display: "inline-block",
+                    visibility: formValues["msg4"] === "gm" ? "hidden" : "visible",
+                  }}
                 >
-                  <Select value="gm">gm</Select>
-                  <Select value="I am...">I am...</Select>
-                  <Select value="I feel...">I feel...</Select>
-                  <Select value="I like...">I like...</Select>
-                  <Select value="I want...">I want...</Select>
-                  <Select value="I think...">I think...</Select>
-                  <Select value="I do...">I do...</Select>
-                  <Select value="I believe in...">I believe in...</Select>
-                  <Select value="I build...">I build...</Select>
-                </Select>
-              </Form.Item>
-              <Form.Item
-                name={["msg4", "emoji"]}
-                onChange={e => {
-                  setFormValues({
-                    ...formValues,
-                    emoji4: e.target.value,
-                  });
-                }}
-                style={{
-                  display: "inline-block",
-                  visibility: formValues["msg4"] === "gm" ? "hidden" : "visible",
-                }}
-              >
-                <Input style={{ width: "140px" }} maxLength="5" placeholder="Enter 1 emoji" />
-              </Form.Item>
-            </Input.Group>
-          </Form.Item>
+                  <Input style={{ width: "140px" }} maxLength="5" placeholder="Enter 1 emoji" />
+                </Form.Item>
+              </Input.Group>
+            </Form.Item>
 
-          <Form.Item colon={false} style={{ margin: "0 auto", display: "inline-block", width: "100%" }}>
-            <Button type="primary" htmlType="submit" style={{ margin: "0 auto", width: "100%" }}>
-              Create your Emojiboard
-            </Button>
-          </Form.Item>
-        </Form>
+            <Form.Item colon={false} style={{ margin: "0 auto", display: "inline-block", width: "100%" }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                disabled={mintState === "minting" && "true"}
+                style={{ margin: "0 auto", width: "100%" }}
+              >
+                Create your Emojiboard
+              </Button>
+            </Form.Item>
+            {mintState === "minting" && (
+              <div className="loading-indicator">
+                <LoadingIndicator />
+                <p style={{ marginLeft: "50px", paddingTop: "10px", marginBottom: "0px" }}>
+                  Creating your Emojiboard...
+                </p>
+              </div>
+            )}
+          </Form>
+        </div>
       </div>
-    </div>
+      {mintedEmojiboard.length > 0 && (
+        <div
+          style={{
+            maxWidth: "800px",
+            margin: "1em auto",
+            backgroundColor: "#F15BB5",
+            padding: "20px",
+            borderRadius: "10px",
+          }}
+        >
+          <h3
+            style={{
+              fontFamily: "Darker Grotesque",
+              color: "#00BBF9",
+              fontSize: "3rem",
+              margin: "0 0 20px 0",
+              textShadow: "-0.04em 0.04em 0 #FEE440",
+              "-webkit-text-stroke": "0.015em #FEE440",
+              lineHeight: 0.8,
+              fontWeight: 700,
+              padding: "0.4em 0.6em",
+            }}
+          >
+            You have minted your Emojiboard!
+          </h3>
+          <Typography style={{ pt: "10px", pb: "30px", fontWeight: 400, textAlign: "left", color: "#fff" }}>
+            It can take a while for your Emojiboard to be available on OpenSea. You can try reloading in 1-2 minutes.
+            <br />
+            In the meantime, here's how your Emojiboard is going to look like:
+          </Typography>
+          <Image.PreviewGroup style={{ marginBottom: "50px" }}>
+            <div style={{ display: "inline-block", marginBottom: "30px" }}>
+              <Image className="img-shadow" src={mintedEmojiboard[1]} alt={mintedEmojiboard[0]} />
+              <br />
+              Emojiboard #{mintedEmojiboard[0]}
+              <br />
+              <a
+                href={`https://rinkeby.opensea.io/assets/${OPENSEA_CONTRACT_ADDRESS}/${mintedEmojiboard[0]}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ color: "#fff", fontWeight: "normal" }}
+              >
+                Check on OpenSea
+              </a>
+              <br />
+            </div>
+          </Image.PreviewGroup>
+        </div>
+      )}
+    </>
   );
 };
 

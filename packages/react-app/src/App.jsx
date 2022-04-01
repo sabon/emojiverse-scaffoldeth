@@ -104,7 +104,6 @@ function App(props) {
   const userProviderAndSigner = useUserProviderAndSigner(injectedProvider, localProvider, USE_BURNER_WALLET);
 
   const userSigner = userProviderAndSigner.signer;
-  console.log("🔴 userSigner in App.jsx", userSigner);
 
   useEffect(() => {
     async function getAddress() {

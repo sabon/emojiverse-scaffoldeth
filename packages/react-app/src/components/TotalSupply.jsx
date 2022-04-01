@@ -3,6 +3,7 @@ import { Button } from "antd";
 
 const MORALIS_API_KEY = process.env.REACT_APP_MORALIS_API_KEY;
 const OPENSEA_CONTRACT_ADDRESS = process.env.REACT_APP_OPENSEA_CONTRACT_ADDRESS;
+const REACT_APP_OPENSEA_COLLECTION_URL = process.env.REACT_APP_OPENSEA_COLLECTION_URL;
 
 export default function TotalSupply() {
   const [totalSupply, setTotalSupply] = useState([]);
@@ -70,7 +71,7 @@ export default function TotalSupply() {
         }}
         shape="round"
         size="large"
-        href="https://testnets.opensea.io/collection/emojiverse-v3"
+        href={REACT_APP_OPENSEA_COLLECTION_URL}
         target={"_blank"}
       >
         OpenSea

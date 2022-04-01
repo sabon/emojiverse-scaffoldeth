@@ -1,6 +1,5 @@
 import { Skeleton, Typography } from "antd";
 import React from "react";
-import { useThemeSwitcher } from "react-css-theme-switcher";
 import { useLookupAddress } from "eth-hooks/dapps/ens";
 
 // changed value={address} to address={address}
